@@ -1,22 +1,25 @@
 {
   "name": "send",
-  "description": "File Sharing Experiment",
+  "description": "Simple, private file sharing from the browser (E2E encrypted)",
   "repository": {
-    "url": "https://github.com/timvisee/send/",
+    "url": "https://github.com/6078HITHEDAY/send/",
     "license": "MPL-2.0"
   },
   "participate": {
-    "home": "https://github.om/timvisee/send/blob/master/README.md",
-    "docs": "https://github.com/timvisee/send/blob/master/README.md"
+    "home": "https://github.com/6078HITHEDAY/send/blob/master/README.md",
+    "docs": "https://github.com/6078HITHEDAY/send/blob/master/docs/README.md"
   },
   "bugs": {
-    "list": "https://github.com/timvisee/send/issues",
-    "report": "https://github.com/timvisee/send/issues/new"
+    "list": "https://github.com/6078HITHEDAY/send/issues",
+    "report": "https://github.com/6078HITHEDAY/send/issues/new"
   },
   "keywords": [
-    "JavaScript",
-    "jQuery",
-    "Node",
-    "Redis"
+    "Bun",
+    "Hono",
+    "React",
+    "TypeScript",
+    "Redis",
+    "encryption",
+    "file-sharing"
   ]
 }

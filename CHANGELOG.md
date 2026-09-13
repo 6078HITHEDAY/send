@@ -1,5 +1,21 @@
 ## Change Log
 
+### Unreleased — Bun / Hono / React rewrite
+
+- Runtime moved from Node + Express/webpack to **Bun 1.4**, **Hono**, and a
+  **React 19** SPA (Zustand, React Router, Tailwind 4, Biome, Zod).
+- WebSocket upload path rewritten with bounded streams; share URLs keep the
+  secret in the `#fragment` only.
+- Docs and tooling synced for this repository
+  (`https://github.com/6078HITHEDAY/send`): new README, `.env.example`,
+  CONTRIBUTING, Contributor Covenant CoC, GitHub Issue/PR templates, and
+  refreshed Docker / FAQ / encryption docs.
+- Legacy webpack / Android / CircleCI documentation archived under
+  `docs/archive/`.
+
+Historical entries below are retained from the upstream Mozilla / community
+fork history for provenance.
+
 ### v2.5.1 (2018/03/12 19:26 +00:00)
 - [#789](https://github.com/mozilla/send/pull/789) Fixed #775 : Made text not-selectable (@RCMainak)
 

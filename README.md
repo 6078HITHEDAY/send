@@ -1,172 +1,193 @@
-# [![Send](./assets/icon-64x64.png)](https://gitlab.com/timvisee/send/) Send
+# Send
 
-[![Build status on GitLab CI][gitlab-ci-master-badge]][gitlab-ci-link]
-[![Latest release][release-badge]][release-link]
-[![Docker image][docker-image-badge]][docker-image-link]
-[![Project license][repo-license-badge]](LICENSE)
+[![CI](https://github.com/6078HITHEDAY/send/actions/workflows/ci.yml/badge.svg)](https://github.com/6078HITHEDAY/send/actions/workflows/ci.yml)
+[![License: MPL 2.0](https://img.shields.io/badge/license-MPL--2.0-blue.svg)](LICENSE)
 
-[docker-image-badge]: https://img.shields.io/badge/docker-latest-blue.svg
-[docker-image-link]: https://gitlab.com/timvisee/send/container_registry/eyJuYW1lIjoidGltdmlzZWUvc2VuZCIsInRhZ3NfcGF0aCI6Ii90aW12aXNlZS9zZW5kL3JlZ2lzdHJ5L3JlcG9zaXRvcnkvMTQxODUwNC90YWdzP2Zvcm1hdD1qc29uIiwiaWQiOjE0MTg1MDQsImNsZWFudXBfcG9saWN5X3N0YXJ0ZWRfYXQiOm51bGx9
-[gitlab-ci-link]: https://gitlab.com/timvisee/send/pipelines
-[gitlab-ci-master-badge]: https://gitlab.com/timvisee/send/badges/master/pipeline.svg
-[release-badge]: https://img.shields.io/github/v/tag/timvisee/send
-[release-link]: https://gitlab.com/timvisee/send/-/tags
-[repo-license-badge]: https://img.shields.io/github/license/timvisee/send.svg
+Private, encrypted file sharing. Upload from the browser; the ciphertext is all
+the server ever stores. Share a link that carries the decryption key in the URL
+fragment (`#…`) so it never reaches the server.
 
-A fork of Mozilla's [Firefox Send][mozilla-send].
-Mozilla discontinued Send, this fork is a community effort to keep the project
-up-to-date and alive.
+This repository is a community fork of Mozilla’s discontinued
+[Firefox Send](https://github.com/mozilla/send), rewritten for **Bun**,
+**Hono**, and **React**. Branding from Mozilla / Firefox has been removed so
+you can self-host. See [Credits](#credits).
 
-- Forked [at][fork-commit] Mozilla's last publicly hosted version
-- _Mozilla_ & _Firefox_ branding [is][remove-branding-pr] removed so you can legally self-host
-- Kept compatible with [`ffsend`][ffsend] (CLI for Send)
-- Dependencies have been updated
-- Mozilla's [changes][mozilla-patches] since the fork have been selectively [merged][mozilla-patches-pr]
-- Mozilla's experimental report feature, download tokens, trust warnings and FxA changes are not included
+![Send homepage](docs/images/homepage.png)
 
-Find an up-to-date Docker image here: [docs/docker.md](docs/docker.md)
-
-The original project by Mozilla can be found [here][mozilla-send].
-The [`mozilla-master`][branch-mozilla-master] branch holds the `master` branch
-as left by Mozilla.
-The [`send-v3`][branch-send-v3] branch holds the commit tree of Mozilla's last
-publicly hosted version, which this fork is based on.
-The [`send-v4`][branch-send-v4] branch holds the commit tree of Mozilla's last
-experimental version which was still a work in progress (featuring file
-reporting, download tokens, trust warnings and FxA changes), this has
-selectively been merged into this fork.
-Please consider to [donate][donate] to allow me to keep working on this.
-
-Thanks [Mozilla][mozilla] for building this amazing tool!
-
-[branch-mozilla-master]: https://gitlab.com/timvisee/send/-/tree/mozilla-master
-[branch-send-v3]: https://gitlab.com/timvisee/send/-/tree/send-v3
-[branch-send-v4]: https://gitlab.com/timvisee/send/-/tree/send-v4
-[donate]: https://timvisee.com/donate
-[ffsend]: https://github.com/timvisee/ffsend
-[fork-commit]: https://gitlab.com/timvisee/send/-/commit/3e9be676413a6e1baaf6a354c180e91899d10bec
-[mozilla-patches-pr]: https://gitlab.com/timvisee/send/-/merge_requests/3
-[mozilla-patches]: https://gitlab.com/timvisee/send/-/compare/3e9be676413a6e1baaf6a354c180e91899d10bec...mozilla-master
-[mozilla-send]: https://github.com/mozilla/send
-[mozilla]: https://mozilla.org/
-[remove-branding-pr]: https://gitlab.com/timvisee/send/-/merge_requests/2
+**Docs:** [FAQ](docs/faq.md) · [Encryption](docs/encryption.md) · [Docker](docs/docker.md) · [Deployment](docs/deployment.md) · [Build](docs/build.md) · [Localization](docs/localization.md)
 
 ---
 
-**Docs:** [FAQ](docs/faq.md), [Encryption](docs/encryption.md), [Build](docs/build.md), [Docker](docs/docker.md), [More](docs/)
+## Features
 
----
+- End-to-end encryption in the browser (AES-GCM / Web Crypto)
+- Optional password on downloads
+- Expiry time and download-count limits
+- Multi-file archives
+- Local disk, S3-compatible, or GCS storage
+- Optional Firefox Accounts (FxA) gate
+- Fluent (`ftl`) localization
 
-## Table of Contents
+## Tech stack
 
-* [What it does](#what-it-does)
-* [Requirements](#requirements)
-* [Development](#development)
-* [Commands](#commands)
-* [Configuration](#configuration)
-* [Localization](#localization)
-* [Contributing](#contributing)
-* [Instances](#instances)
-* [Deployment](#deployment)
-* [Clients](#clients)
-* [License](#license)
+| Layer | Choice |
+| --- | --- |
+| Runtime / package manager | [Bun](https://bun.sh) ≥ 1.4 |
+| HTTP / WebSocket | [Hono](https://hono.dev) on `Bun.serve` |
+| UI | React 19, React Router, Zustand |
+| CSS | Tailwind CSS v4 |
+| Config / validation | Zod |
+| Lint / format | Biome |
+| Unit tests | `bun test` |
+| E2E | Playwright |
 
----
+## Directory layout
 
-## What it does
-
-A file sharing experiment which allows you to send encrypted files to other users.
-
----
+```
+src/
+  client/          React SPA (pages, components, i18n)
+  core/            Shared crypto, upload/download, zip
+  server/          Hono app, routes, storage, WS upload
+scripts/           build + version helpers
+public/locales/    Fluent translations
+dist/              Production assets (after `bun run build`)
+docs/              Project documentation
+e2e/               Playwright smoke tests
+```
 
 ## Requirements
 
-- [Node.js 16.x](https://nodejs.org/)
-- [Redis server](https://redis.io/) (optional for development)
-- [AWS S3](https://aws.amazon.com/s3/) or compatible service (optional)
+- [Bun](https://bun.sh) ≥ 1.4
+- Redis — **optional in development** when `REDIS_HOST=localhost` (in-memory stub). Required for production.
+- Optional: S3-compatible bucket or GCS for blob storage (otherwise files go under `FILE_DIR`)
 
----
+## Quick start (development)
 
-## Development
-
-To start an ephemeral development server, run:
-
-```sh
-npm install
-npm start
+```bash
+git clone https://github.com/6078HITHEDAY/send.git
+cd send
+bun install
+cp .env.example .env   # defaults are fine for local demo
+bun run start
 ```
 
-Then, browse to http://localhost:8080
+Open [http://localhost:1443](http://localhost:1443).
 
----
-
-## Commands
-
-| Command          | Description |
-|------------------|-------------|
-| `npm run format` | Formats the frontend and server code using **prettier**.
-| `npm run lint`   | Lints the CSS and JavaScript code.
-| `npm test`       | Runs the suite of mocha tests.
-| `npm start`      | Runs the server in development configuration.
-| `npm run build`  | Builds the production assets.
-| `npm run prod`   | Runs the server in production configuration.
-
----
+`bun run start` runs the Bun/Hono app with hot reload (`src/server/dev.ts`).
+With the default `.env`, Redis is not required.
 
 ## Configuration
 
-The server is configured with environment variables. See [server/config.js](server/config.js) for all options and [docs/docker.md](docs/docker.md) for examples.
+Environment variables are loaded in [`src/server/config.ts`](src/server/config.ts).
+A commented template is in [`.env.example`](.env.example).
 
----
+| Variable | Default | Notes |
+| --- | --- | --- |
+| `PORT` | `1443` | Listen port |
+| `IP_ADDRESS` | `0.0.0.0` | Listen address |
+| `BASE_URL` | `https://send.example.com` | Absolute URL used in share links |
+| `DETECT_BASE_URL` | `false` | Derive base URL from the incoming request |
+| `NODE_ENV` | `development` | `development` \| `production` \| `test` |
+| `REDIS_HOST` | `localhost` | In-memory Redis when `localhost` + development/test |
+| `FILE_DIR` | temp dir | Local blob directory when not using S3/GCS |
+| `S3_BUCKET` / `GCS_BUCKET` | empty | Enable object storage when set |
+| `MAX_FILE_SIZE` | ~2.5 GiB | Bytes |
+| `DEFAULT_EXPIRE_SECONDS` | `86400` | 1 day |
+| `DEFAULT_DOWNLOADS` | `1` | |
+| `FXA_CLIENT_ID` | empty | Empty disables FxA |
 
-## Localization
+See `.env.example` for the full list (limits, UI chrome, Sentry, notices).
 
-See: [docs/localization.md](docs/localization.md)
+## Scripts
 
----
+| Command | Purpose |
+| --- | --- |
+| `bun run start` | Dev server + HMR on port `1443` |
+| `bun run build` | Write `dist/` production assets |
+| `bun run prod` | Serve production build (`src/server/prod.ts`) |
+| `bun test` | Unit / integration tests |
+| `bun run test:e2e` | Playwright smoke (upload → download) |
+| `bun run typecheck` | `tsc --noEmit` |
+| `bun run lint` | Biome check |
+| `bun run lint:fix` | Biome check + write |
+| `bun run format` | Biome format |
+
+## Production build
+
+```bash
+bun install --frozen-lockfile
+bun run build
+NODE_ENV=production BASE_URL=https://send.example.com REDIS_HOST=redis bun run prod
+```
+
+Put a reverse proxy (Caddy, nginx, Traefik) in front for TLS. Set `BASE_URL` to
+the public HTTPS origin.
+
+## Docker
+
+Build and run with Compose (app + Redis):
+
+```bash
+docker compose up --build
+```
+
+App: [http://localhost:1443](http://localhost:1443).
+
+Or build the image alone:
+
+```bash
+docker build -t ghcr.io/6078hitheday/send:latest .
+docker run --rm -p 1443:1443 \
+  -e NODE_ENV=production \
+  -e BASE_URL=http://localhost:1443 \
+  -e REDIS_HOST=host.docker.internal \
+  ghcr.io/6078hitheday/send:latest
+```
+
+Details: [docs/docker.md](docs/docker.md).
+
+## Testing
+
+```bash
+bun test
+bun run typecheck
+bun run lint
+bun run build
+# optional browser smoke (installs browsers on first run)
+bunx playwright install chromium
+bun run test:e2e
+```
+
+## Usage example
+
+1. Open the homepage and choose a file (or drop several for an archive).
+2. Optionally set a password, expiry, and download limit.
+3. Upload — the client encrypts before upload.
+4. Copy the share link. It looks like  
+   `https://your.host/download/<id>#<secret>`  
+   The `#<secret>` fragment is never sent to the server.
+5. Open the link in another browser / private window and download. Wrong
+   passwords are rejected; after the download limit the link expires.
+
+![Share dialog](docs/images/share-dialog.png)
+
+## FAQ
+
+See [docs/faq.md](docs/faq.md) for size limits, browser support, password
+behaviour, and self-hosting tips.
 
 ## Contributing
 
-Pull requests are always welcome! Feel free to check out the list of "good first issues" (to be implemented).
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) and the
+[Code of Conduct](CODE_OF_CONDUCT.md). Issues and pull requests:
+https://github.com/6078HITHEDAY/send/issues
 
----
+## Credits
 
-## Instances
-
-Find a list of public instances here: https://github.com/timvisee/send-instances/
-
----
-
-## Deployment
-
-See: [docs/deployment.md](docs/deployment.md)
-
-Docker quickstart: [docs/docker.md](docs/docker.md)
-
-AWS example using Ubuntu Server `20.04`: [docs/AWS.md](docs/AWS.md)
-
----
-
-## Clients
-
-- Web: _this repository_
-- Command-line: [`ffsend`](https://github.com/timvisee/ffsend)
-- Android: _see [Android](#android) section_
-- Thunderbird: [FileLink provider for Send](https://addons.thunderbird.net/thunderbird/addon/filelink-provider-for-send/)
-
-#### Android
-
-The android implementation is contained in the `android` directory,
-and can be viewed locally for easy testing and editing by running `ANDROID=1 npm
-start` and then visiting <http://localhost:8080>. CSS and image files are
-located in the `android/app/src/main/assets` directory.
-
----
+- Original [Firefox Send](https://github.com/mozilla/send) by [Mozilla](https://www.mozilla.org/)
+- Long-running community fork work by [Tim Visee](https://github.com/timvisee) and contributors
+- This tree continues that lineage on Bun / Hono / React
 
 ## License
 
-[Mozilla Public License Version 2.0](LICENSE)
-
-[qrcode.js](https://github.com/kazuhikoarase/qrcode-generator) licensed under MIT
-
----
+[MPL-2.0](LICENSE)

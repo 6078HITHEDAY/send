@@ -1,42 +1,53 @@
-## How big of a file can I transfer with Send?
+# FAQ
 
-There is a 2GB file size limit built in to Send, but this may be changed by the
-hoster. Send encrypts and decrypts the files in the browser which is great for
-security but will tax your system resources.  In particular you can expect to
-see your memory usage go up by at least the size of the file when the transfer
-is processing.  You can see [the results of some
-testing](https://github.com/mozilla/send/issues/170#issuecomment-314107793). For
-the most reliable operation on common computers, it’s probably best to stay
-under a few hundred megabytes.
+## How large a file can I send?
 
-## Why is my browser not supported?
+The default limit is about **2.5 GiB** (`MAX_FILE_SIZE`). Operators can raise or
+lower it. Encryption and decryption run in the browser, so very large files need
+enough memory on the client. For everyday machines, a few hundred megabytes is
+the most reliable range.
 
-We’re using the [Web Cryptography JavaScript API with the AES-GCM
-algorithm](https://www.w3.org/TR/WebCryptoAPI/#aes-gcm) for our encryption.
-Many browsers support this standard and should work fine, but some have not
-implemented it yet (mobile browsers lag behind on this, in
-particular).
+## Which browsers work?
 
-## Why does Send require JavaScript?
+A current browser with Web Crypto (AES-GCM), WebSocket, and Streams support is
+required — recent Firefox, Chrome, Edge, or Safari. Very old browsers are not
+supported.
 
-Send uses JavaScript to:
+## Why does Send need JavaScript?
 
-- Encrypt and decrypt files locally on the client instead of the server.
-- Render the user interface.
-- Manage translations on the website into [various different languages](https://github.com/timvisee/send#localization).
-- Collect data to help us improve Send in accordance with our [Terms & Privacy](https://send.firefox.com/legal).
+Encryption, decryption, the UI, and localization all run in the browser. Without
+JavaScript the client cannot keep the server from seeing plaintext.
 
-Since Send is an open source project, you can see all of the cool ways we use JavaScript by [examining our code](https://github.com/timvisee/send/).
+## How long do files stay available?
 
-## How long are files available for?
-
-Files are available to be downloaded for 24 hours, after which they are removed
-from the server.  They are also removed immediately once the download limit is reached.
+By default links expire after **24 hours** or when the download limit is reached
+(default **1** download), whichever comes first. Both are configurable
+(`DEFAULT_EXPIRE_SECONDS`, `DEFAULT_DOWNLOADS`, and the related allow-lists).
 
 ## Can a file be downloaded more than once?
 
-Yes, once a file is submitted to Send you can select the download limit.
+Yes. The uploader can pick a download count from the values in
+`DOWNLOAD_COUNTS` (capped by `MAX_DOWNLOADS`).
 
+## Is the download password sent to the server?
 
-*Disclaimer: Send is an experiment and under active development.  The answers
-here may change as we get feedback from you and the project matures.*
+No. The password is used only in the browser to derive the auth key (PBKDF2)
+together with the share URL. The server stores the derived auth material, not
+your password.
+
+## Where is the encryption key?
+
+In the URL fragment after `#`. Browsers do not send fragments to the server, so
+the hosting operator cannot decrypt your files from logs alone. Share links look
+like `/download/<id>#<secret>`.
+
+## Do I need Redis to try it locally?
+
+Not in development. With `NODE_ENV=development` and `REDIS_HOST=localhost` the
+server uses an in-memory Redis stub. Production deployments should run a real
+Redis and point `REDIS_HOST` at it.
+
+## Where did Android / the old webpack docs go?
+
+They described stacks this rewrite no longer ships. Snapshots live under
+[`docs/archive/`](archive/) for history only.
