@@ -1,13 +1,19 @@
 {
   "name": "send",
-  "description": "File Sharing Experiment",
+  "description": "Simple, private file sharing from the browser (E2E encrypted)",
   "version": "3.4.27",
   "author": "Mozilla (https://mozilla.org)",
   "contributors": [
     "Tim Visee <3a4fb3964f@sinenomine.email> (https://timvisee.com)"
   ],
-  "repository": "gitlab:timvisee/send",
-  "homepage": "https://gitlab.com/timvisee/send/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/6078HITHEDAY/send.git"
+  },
+  "bugs": {
+    "url": "https://github.com/6078HITHEDAY/send/issues"
+  },
+  "homepage": "https://github.com/6078HITHEDAY/send",
   "license": "MPL-2.0",
   "private": true,
   "type": "module",

@@ -1,96 +1,46 @@
-## Requirements
+# Deployment
 
-This document describes how to do a full deployment of Send on your own Linux server. You will need:
+## Checklist
 
-* A working (and ideally somewhat recent) installation of NodeJS and npm
-* Git
-* Apache webserver
-* Optionally telnet, to be able to quickly check your installation
+1. Build assets: `bun run build` (or use the Docker image).
+2. Run Redis and set `REDIS_HOST` / `REDIS_PORT` (and auth if any).
+3. Choose blob storage:
+   - **Filesystem:** set `FILE_DIR` to a persistent volume, or
+   - **S3:** `S3_BUCKET` (+ optional `S3_ENDPOINT`, path-style flag), or
+   - **GCS:** `GCS_BUCKET` and application credentials.
+4. Set `NODE_ENV=production`, `BASE_URL` to your public HTTPS origin, and
+   `PORT` (default `1443`).
+5. Terminate TLS at a reverse proxy; proxy WebSocket `/api/ws` as well as HTTP.
+6. Optionally configure FxA, Sentry, and UI notice HTML (see `.env.example`).
 
-For example in Debian/Ubuntu systems:
-
-```bash
-sudo apt install git apache2 nodejs npm telnet
-```
-
-## Building
-
-* We assume an already configured virtual-host on your webserver with an existing empty htdocs folder
-* First, remove that htdocs folder - we will replace it with Send's version now
-* git clone https://github.com/timvisee/send.git htdocs
-* Make now sure you are NOT root but rather the user your webserver is serving files under (e.g. "su www-data" or whoever the owner of your htdocs folder is)
-* npm install
-* npm run build
-
-## Running
-
-To have a permanently running version of Send as a background process:
-
-* Create a file `run.sh` with:
+## Process
 
 ```bash
-#!/bin/bash
-nohup su www-data -c "npm run prod" 2>/dev/null &
+bun install --frozen-lockfile
+bun run build
+NODE_ENV=production BASE_URL=https://send.example.com REDIS_HOST=127.0.0.1 bun run prod
 ```
 
-* Execute the script:
+Or deploy with Compose: see [docker.md](docker.md).
 
-```bash
-chmod +x run.sh
-./run.sh
-```
+## Reverse proxy
 
-Now the Send backend should be running on port 1443. You can check with:
+Ensure:
 
-```bash
-telnet localhost 1443
-```
+- HTTPS to clients
+- `BASE_URL` matches the external URL (or enable `DETECT_BASE_URL`)
+- WebSocket upgrade for `/api/ws`
+- Reasonable max body size if you use `POST /api/upload` (WS streaming is preferred)
 
-## Reverse Proxy
+## Ops endpoints
 
-Of course, we don't want to expose the service on port 1443. Instead we want our normal webserver to forward all requests to Send ("Reverse proxy").
+| Path | Purpose |
+| --- | --- |
+| `/__lbheartbeat__` | Liveness (no dependency checks) |
+| `/__heartbeat__` | Readiness (storage / Redis ping) |
+| `/__version__` | Build metadata JSON |
 
-# Apache webserver
+## CI
 
-* Enable Apache required modules:
-
-```bash
-sudo a2enmod headers
-sudo a2enmod proxy
-sudo a2enmod proxy_http
-sudo a2enmod proxy_wstunnel
-sudo a2enmod rewrite
-```
-
-* Edit your Apache virtual host configuration file, insert this:
-
-```
-# Enable rewrite engine
-RewriteEngine on
-
-# Make sure the original domain name is forwarded to Send
-# Otherwise the generated URLs will be wrong
-ProxyPreserveHost on
-
-# Make sure the generated URL is https://
-RequestHeader set X-Forwarded-Proto https
-
-# If it's a normal file (e.g. PNG, CSS) just return it
-RewriteCond %{REQUEST_FILENAME} -f
-RewriteRule .* - [L]
-
-# If it's a websocket connection, redirect it to a Send WS connection
-RewriteCond %{HTTP:Upgrade} =websocket [NC]
-RewriteRule /(.*) ws://127.0.0.1:1443/$1 [P,L]
-
-# Otherwise redirect it to a normal HTTP connection
-RewriteRule ^/(.*)$ http://127.0.0.1:1443/$1 [P,QSA]
-ProxyPassReverse  "/" "http://127.0.0.1:1443"
-```
-
-* Test configuration and restart Apache:
-
-```bash
-sudo apache2ctl configtest
-sudo systemctl restart apache2
-```
+GitHub Actions: [`.github/workflows/ci.yml`](../.github/workflows/ci.yml)  
+GitLab CI (optional mirror): [`.gitlab-ci.yml`](../.gitlab-ci.yml)
