@@ -74,8 +74,12 @@ pages.get('/unsupported/:reason', page('none'));
  * request already has one. The secret key lives in the fragment and so never
  * reaches this handler.
  */
-pages.get(`/download/:id{${ID_PATTERN}}`, async c => {
-  const meta = await storage.metadata(c.req.param('id'));
+async function downloadPage(c: Context<PageEnv>): Promise<Response> {
+  const id = c.req.param('id');
+  if (!id) {
+    return renderNotFound(c.req.raw, pageVars(c));
+  }
+  const meta = await storage.metadata(id);
   if (!meta) {
     return renderNotFound(c.req.raw, pageVars(c));
   }
@@ -84,7 +88,11 @@ pages.get(`/download/:id{${ID_PATTERN}}`, async c => {
     nonce: meta.nonce,
     pwd: meta.pwd
   });
-});
+}
+
+// Accept an optional trailing slash so older share links still resolve.
+pages.get(`/download/:id{${ID_PATTERN}}`, downloadPage);
+pages.get(`/download/:id{${ID_PATTERN}}/`, downloadPage);
 
 pages.get('/app.webmanifest', c => {
   const assets = uiAssets(deriveBaseUrl(c.req.raw));

@@ -98,7 +98,7 @@ async function decryptStream(id: string): Promise<Response> {
     // Back to the page, which can ask for a password and retry.
     return new Response(null, {
       status: 302,
-      headers: { Location: `/download/${id}/#${file.key}` }
+      headers: { Location: `/download/${id}#${file.key}` }
     });
   }
 }

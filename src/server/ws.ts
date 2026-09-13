@@ -185,7 +185,9 @@ export async function onMessage(
       nonce: crypto.randomBytes(16).toString('base64')
     };
 
-    const url = `${deriveBaseUrl(request)}/download/${newId}/`;
+    // No trailing slash: `/download/:id/` does not match the page route and
+    // the HTML shell would seed `downloadMetadata.status = 404`.
+    const url = `${deriveBaseUrl(request)}/download/${newId}`;
     ws.send(
       JSON.stringify({
         url,

@@ -176,7 +176,7 @@ api.post('/upload', fxaAuth, async c => {
     );
     c.header('WWW-Authenticate', `send-v1 ${meta.nonce}`);
     return c.json({
-      url: `${deriveBaseUrl(c.req.raw)}/download/${newId}/`,
+      url: `${deriveBaseUrl(c.req.raw)}/download/${newId}`,
       owner: meta.owner,
       id: newId
     });
