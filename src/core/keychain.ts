@@ -22,7 +22,8 @@ export interface DecryptedMetadata {
   name: string;
   size: number;
   type: string;
-  manifest: ArchiveManifest;
+  /** `{}` for single-file uploads, which carry no archive manifest. */
+  manifest: ArchiveManifest | Record<string, never>;
 }
 
 export default class Keychain {

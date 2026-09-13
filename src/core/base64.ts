@@ -13,7 +13,10 @@ export function arrayToB64(array: Uint8Array): string {
     .replace(/=/g, '');
 }
 
-export function b64ToArray(str: string): Uint8Array {
+// The explicit `ArrayBuffer` type argument (rather than the default
+// `ArrayBufferLike`) lets the result be passed straight to WebCrypto, which
+// rejects `SharedArrayBuffer`-backed views.
+export function b64ToArray(str: string): Uint8Array<ArrayBuffer> {
   const padded = str + '==='.slice((str.length + 3) % 4);
   const binary = atob(padded.replace(/-/g, '+').replace(/_/g, '/'));
   const array = new Uint8Array(binary.length);

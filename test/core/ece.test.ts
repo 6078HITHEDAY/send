@@ -22,7 +22,7 @@ async function collect(stream: ReadableStream<Uint8Array>) {
 }
 
 /** Deterministic input so failures are reproducible. */
-function sequence(size: number): Uint8Array {
+function sequence(size: number): Uint8Array<ArrayBuffer> {
   const out = new Uint8Array(size);
   for (let i = 0; i < size; i++) {
     out[i] = (i * 31 + 7) & 0xff;
