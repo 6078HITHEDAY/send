@@ -40,7 +40,3 @@ Ensure:
 | `/__heartbeat__` | Readiness (storage / Redis ping) |
 | `/__version__` | Build metadata JSON |
 
-## CI
-
-GitHub Actions: [`.github/workflows/ci.yml`](../.github/workflows/ci.yml)  
-GitLab CI (optional mirror): [`.gitlab-ci.yml`](../.gitlab-ci.yml)
