@@ -1,6 +1,5 @@
 # Send
 
-[![CI](https://github.com/6078HITHEDAY/send/actions/workflows/ci.yml/badge.svg)](https://github.com/6078HITHEDAY/send/actions/workflows/ci.yml)
 [![License: MPL 2.0](https://img.shields.io/badge/license-MPL--2.0-blue.svg)](LICENSE)
 
 Private, encrypted file sharing. Upload from the browser; the ciphertext is all
