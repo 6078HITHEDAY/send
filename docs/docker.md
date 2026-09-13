@@ -22,9 +22,16 @@ Override environment variables in the compose file or a sibling `.env`
 
 ## Build / run manually
 
+Prefer Compose above when you can — it puts the app and Redis on one network
+and sets `REDIS_HOST=redis` for you.
+
+Standalone `docker run` against Redis on the host (Linux Docker Engine needs the
+`host-gateway` mapping; Docker Desktop already defines `host.docker.internal`):
+
 ```bash
 docker build -t ghcr.io/6078hitheday/send:latest .
 docker run --rm -p 1443:1443 \
+  --add-host=host.docker.internal:host-gateway \
   -e NODE_ENV=production \
   -e PORT=1443 \
   -e BASE_URL=https://send.example.com \
@@ -34,9 +41,12 @@ docker run --rm -p 1443:1443 \
   ghcr.io/6078hitheday/send:latest
 ```
 
-Point `REDIS_HOST` at a reachable Redis. For S3/GCS set the bucket variables
-from `.env.example`; otherwise files are stored on disk under `FILE_DIR`
-(ephemeral in the container unless you mount a volume).
+Or join an existing Docker network and point `REDIS_HOST` at the Redis
+container name / service name instead of `host.docker.internal`.
+
+For S3/GCS set the bucket variables from `.env.example`; otherwise files are
+stored on disk under `FILE_DIR` (ephemeral in the container unless you mount a
+volume).
 
 ## Notes
 

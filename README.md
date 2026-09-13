@@ -133,11 +133,12 @@ docker compose up --build
 
 App: [http://localhost:1443](http://localhost:1443).
 
-Or build the image alone:
+Or build the image alone (Linux Docker Engine needs `--add-host`; prefer Compose):
 
 ```bash
 docker build -t ghcr.io/6078hitheday/send:latest .
 docker run --rm -p 1443:1443 \
+  --add-host=host.docker.internal:host-gateway \
   -e NODE_ENV=production \
   -e BASE_URL=http://localhost:1443 \
   -e REDIS_HOST=host.docker.internal \
