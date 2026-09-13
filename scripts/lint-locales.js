@@ -33,7 +33,7 @@ function filterErrors(details) {
     .sort()
     .map(locale => {
       const data = details[locale]
-        .filter(item => Object.prototype.hasOwnProperty.call(item, 'error'))
+        .filter(item => Object.hasOwn(item, 'error'))
         .map(({ error }) => error);
       return { locale, data };
     })

@@ -19,8 +19,8 @@ exec(cmd)
     const locales = Object.keys(summary)
       .filter(locale => {
         const loc = summary[locale];
-        const hasMissing = Object.prototype.hasOwnProperty.call(loc, 'missing');
-        const hasErrors = Object.prototype.hasOwnProperty.call(loc, 'errors');
+        const hasMissing = Object.hasOwn(loc, 'missing');
+        const hasErrors = Object.hasOwn(loc, 'errors');
         return !hasMissing && !hasErrors;
       })
       .sort();
