@@ -10,6 +10,7 @@
   (`https://github.com/6078HITHEDAY/send`): new README, `.env.example`,
   CONTRIBUTING, Contributor Covenant CoC, GitHub Issue/PR templates, and
   refreshed Docker / FAQ / encryption docs.
+- CI workflows removed for now (no GitHub Actions / GitLab CI in-tree).
 - Legacy webpack / Android / CircleCI documentation archived under
   `docs/archive/`.
 
