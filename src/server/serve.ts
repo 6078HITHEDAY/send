@@ -1,6 +1,7 @@
 import path from 'node:path';
 import type { ServerWebSocket } from 'bun';
 import { createBunWebSocket } from 'hono/bun';
+import { createWSMessageEvent, WSContext } from 'hono/ws';
 import { createApp } from './app';
 import { DIST_DIR } from './assets';
 import config from './config';
@@ -9,7 +10,72 @@ import { onClose, onMessage, onOpen } from './ws';
 
 const log = createLogger('send.server');
 
-const { upgradeWebSocket, websocket } = createBunWebSocket<ServerWebSocket>();
+const { upgradeWebSocket, websocket: bunWebsocket } =
+  createBunWebSocket<ServerWebSocket>();
+
+type BunWsData = {
+  events: {
+    onOpen?: (event: Event, ws: WSContext) => void;
+    onMessage?: (event: MessageEvent, ws: WSContext) => void;
+    onClose?: (event: CloseEvent, ws: WSContext) => void;
+  };
+  url: URL;
+  protocol: string;
+};
+
+/**
+ * Hono's stock Bun adapter does `message.buffer` for binary frames, which
+ * keeps the pooled ArrayBuffer's full byteLength (and offset). Slice to the
+ * actual frame so our 0x00 EOF sentinel and size limiter see the real bytes.
+ */
+function framePayload(
+  message: string | ArrayBufferView | ArrayBuffer
+): string | ArrayBuffer {
+  if (typeof message === 'string') {
+    return message;
+  }
+  if (ArrayBuffer.isView(message)) {
+    // Copy into a fresh ArrayBuffer so pooled/shared backing stores cannot
+    // inflate the frame length past the actual WebSocket payload.
+    return message.buffer.slice(
+      message.byteOffset,
+      message.byteOffset + message.byteLength
+    ) as ArrayBuffer;
+  }
+  return message;
+}
+
+function wsContext(ws: ServerWebSocket<BunWsData>): WSContext {
+  return new WSContext({
+    send: (source, options) => {
+      ws.send(source, options?.compress);
+    },
+    raw: ws,
+    readyState: ws.readyState,
+    url: ws.data.url,
+    protocol: ws.data.protocol,
+    close(code, reason) {
+      ws.close(code, reason);
+    }
+  });
+}
+
+const websocket = {
+  open(ws: ServerWebSocket<BunWsData>) {
+    bunWebsocket.open(ws);
+  },
+  close(ws: ServerWebSocket<BunWsData>, code: number, reason: string) {
+    bunWebsocket.close(ws, code, reason);
+  },
+  message(
+    ws: ServerWebSocket<BunWsData>,
+    message: string | ArrayBufferView | ArrayBuffer
+  ) {
+    const onMessage = ws.data.events.onMessage;
+    if (!onMessage) return;
+    onMessage(createWSMessageEvent(framePayload(message)), wsContext(ws));
+  }
+};
 
 /** Hashed bundles are immutable; the service worker must never be cached. */
 function staticHeaders(pathname: string): Record<string, string> {

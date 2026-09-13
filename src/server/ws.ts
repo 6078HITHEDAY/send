@@ -102,18 +102,29 @@ interface Session {
   started: boolean;
 }
 
-const sessions = new WeakMap<WSContext, Session>();
+/**
+ * Hono's Bun adapter builds a fresh `WSContext` wrapper on every event, so
+ * the session map MUST key on the underlying socket (`ws.raw`), not the
+ * wrapper. Keying on `WSContext` made every `onMessage` look like a missing
+ * session and silently dropped the upload.
+ */
+const sessions = new WeakMap<object, Session>();
+
+function sessionKey(ws: WSContext): object {
+  return (ws.raw as object | undefined) ?? ws;
+}
 
 export function onOpen(ws: WSContext) {
-  sessions.set(ws, { body: null, started: false });
+  sessions.set(sessionKey(ws), { body: null, started: false });
 }
 
 export function onClose(ws: WSContext, code?: number) {
-  const session = sessions.get(ws);
+  const key = sessionKey(ws);
+  const session = sessions.get(key);
   if (session?.body && code !== 1000) {
     session.body.fail(new Error('client disconnected'));
   }
-  sessions.delete(ws);
+  sessions.delete(key);
 }
 
 export async function onMessage(
@@ -121,7 +132,7 @@ export async function onMessage(
   data: WSMessageReceive,
   request: Request
 ) {
-  const session = sessions.get(ws);
+  const session = sessions.get(sessionKey(ws));
   if (!session) {
     return;
   }

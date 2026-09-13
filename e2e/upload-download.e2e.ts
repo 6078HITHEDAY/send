@@ -1,5 +1,9 @@
+import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { expect, test } from '@playwright/test';
+
+const here = path.dirname(fileURLToPath(import.meta.url));
 
 /**
  * End-to-end: pick a file on /, wait for the share dialog, open the download
@@ -9,7 +13,7 @@ test('upload, download and decrypt a single file', async ({
   page,
   context
 }) => {
-  const fixture = path.join(import.meta.dir, 'fixtures', 'hello.txt');
+  const fixture = path.join(here, 'fixtures', 'hello.txt');
 
   await page.goto('/');
   await expect(page.locator('#file-upload')).toBeAttached({ timeout: 15_000 });
@@ -42,6 +46,6 @@ test('upload, download and decrypt a single file', async ({
   expect(download.suggestedFilename()).toBe('hello.txt');
   const filePath = await download.path();
   expect(filePath).toBeTruthy();
-  const bytes = await Bun.file(filePath as string).text();
+  const bytes = fs.readFileSync(filePath as string, 'utf8');
   expect(bytes).toBe('hello from send e2e\n');
 });

@@ -21,7 +21,8 @@ export default defineConfig({
     reuseExistingServer: !process.env.CI,
     timeout: 180_000,
     env: {
-      NODE_ENV: 'production',
+      // development + localhost Redis → in-memory store (no redis-server).
+      NODE_ENV: 'development',
       PORT: '1443',
       BASE_URL: 'http://127.0.0.1:1443',
       REDIS_HOST: 'localhost',
