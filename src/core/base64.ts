@@ -7,10 +7,7 @@ export function arrayToB64(array: Uint8Array): string {
   for (let i = 0; i < array.length; i++) {
     binary += String.fromCharCode(array[i] as number);
   }
-  return btoa(binary)
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=/g, '');
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
 }
 
 // The explicit `ArrayBuffer` type argument (rather than the default

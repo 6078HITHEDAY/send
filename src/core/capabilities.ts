@@ -12,9 +12,7 @@ export interface Capabilities {
  * Safari and Firefox for Android cannot consume a service-worker-generated
  * streaming response, so they fall back to buffering the whole file in memory.
  */
-export default function getCapabilities(
-  authConfigured: boolean
-): Capabilities {
+export default function getCapabilities(authConfigured: boolean): Capabilities {
   const browser = browserName();
   const isMobile = /mobi|android/i.test(navigator.userAgent);
   const serviceWorker = 'serviceWorker' in navigator;
@@ -40,8 +38,7 @@ export default function getCapabilities(
   return {
     account,
     serviceWorker,
-    streamDownload:
-      serviceWorker && browser !== 'safari' && !mobileFirefox,
+    streamDownload: serviceWorker && browser !== 'safari' && !mobileFirefox,
     share,
     standalone
   };

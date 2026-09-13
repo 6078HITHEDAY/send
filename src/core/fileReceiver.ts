@@ -1,7 +1,7 @@
 import type { Cancellable } from './api';
 import { downloadFile, getApiUrl, metadata } from './api';
-import Keychain from './keychain';
 import type { ArchiveManifest } from './keychain';
+import Keychain from './keychain';
 import { blobStream, streamToArrayBuffer } from './streams';
 import { TransferEmitter } from './transfer';
 import { bytes, delay } from './utils';
@@ -97,9 +97,9 @@ export default class FileReceiver extends TransferEmitter {
         }
       };
 
-      (
-        navigator.serviceWorker.controller as ServiceWorker
-      ).postMessage(msg, [channel.port2]);
+      (navigator.serviceWorker.controller as ServiceWorker).postMessage(msg, [
+        channel.port2
+      ]);
     });
   }
 

@@ -1,6 +1,6 @@
 import { arrayToB64 } from './base64';
-import OwnedFile from './ownedFile';
 import type { OwnedFileJSON } from './ownedFile';
+import OwnedFile from './ownedFile';
 import { isFile } from './utils';
 
 interface StorageEngine {

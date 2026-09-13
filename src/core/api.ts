@@ -219,10 +219,7 @@ function asyncInitWebSocket(server: string): Promise<WebSocket> {
   });
 }
 
-function listenForResponse<T>(
-  ws: WebSocket,
-  canceller: Canceller
-): Promise<T> {
+function listenForResponse<T>(ws: WebSocket, canceller: Canceller): Promise<T> {
   return new Promise((resolve, reject) => {
     function handleClose() {
       // a 'close' event before a 'message' event means the request failed

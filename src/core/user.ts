@@ -118,7 +118,10 @@ export default class User {
     return this.loggedIn ? hashId(this.storage.id) : hashId(anonId);
   }
 
-  startAuthFlow(trigger: string, utms: Record<string, string | undefined> = {}) {
+  startAuthFlow(
+    trigger: string,
+    utms: Record<string, string | undefined> = {}
+  ) {
     this.utms = utms;
     this.trigger = trigger;
   }

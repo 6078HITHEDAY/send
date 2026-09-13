@@ -1,9 +1,6 @@
 export interface StreamTransformer<I = Uint8Array, O = Uint8Array> {
   start?(controller: TransformStreamDefaultController<O>): unknown;
-  transform(
-    chunk: I,
-    controller: TransformStreamDefaultController<O>
-  ): unknown;
+  transform(chunk: I, controller: TransformStreamDefaultController<O>): unknown;
   flush?(controller: TransformStreamDefaultController<O>): unknown;
 }
 
@@ -40,7 +37,10 @@ class BlobStreamController implements UnderlyingDefaultSource<Uint8Array> {
   }
 }
 
-export function blobStream(blob: Blob, size?: number): ReadableStream<Uint8Array> {
+export function blobStream(
+  blob: Blob,
+  size?: number
+): ReadableStream<Uint8Array> {
   return new ReadableStream(new BlobStreamController(blob, size));
 }
 

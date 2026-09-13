@@ -1,7 +1,7 @@
 import { del, fileInfo, setParams, setPassword } from './api';
 import { arrayToB64 } from './base64';
-import Keychain from './keychain';
 import type { ArchiveManifest } from './keychain';
+import Keychain from './keychain';
 
 export interface OwnedFileJSON {
   id: string;
