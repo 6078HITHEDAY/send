@@ -40,6 +40,7 @@
     "content-disposition": "^3.0.0",
     "crc": "^4.3.2",
     "hono": "^4.13.7",
+    "qrcode-generator": "^2.0.4",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "react-router-dom": "^7.18.3",

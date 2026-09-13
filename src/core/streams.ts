@@ -4,13 +4,40 @@ export interface StreamTransformer<I = Uint8Array, O = Uint8Array> {
   flush?(controller: TransformStreamDefaultController<O>): unknown;
 }
 
+/**
+ * Wraps `pipeThrough(new TransformStream(...))`. The optional `oncancel`
+ * callback is what the service worker uses to abort the upstream download when
+ * the browser cancels the response body.
+ */
 export function transformStream<I, O>(
   readable: ReadableStream<I>,
-  transformer: StreamTransformer<I, O>
+  transformer: StreamTransformer<I, O>,
+  oncancel?: (reason?: unknown) => void
 ): ReadableStream<O> {
-  return readable.pipeThrough(
-    new TransformStream<I, O>(transformer as Transformer<I, O>)
+  const transform = new TransformStream<I, O>(
+    transformer as Transformer<I, O>
   );
+  if (!oncancel) {
+    return readable.pipeThrough(transform);
+  }
+  // Own the reader so we can observe cancel; pipeThrough alone would not call
+  // back into the download's abort path.
+  const reader = readable.getReader();
+  const cancelable = new ReadableStream<I>({
+    async pull(controller) {
+      const { done, value } = await reader.read();
+      if (done) {
+        controller.close();
+        return;
+      }
+      controller.enqueue(value);
+    },
+    cancel(reason) {
+      reader.cancel(reason);
+      oncancel(reason);
+    }
+  });
+  return cancelable.pipeThrough(transform);
 }
 
 class BlobStreamController implements UnderlyingDefaultSource<Uint8Array> {

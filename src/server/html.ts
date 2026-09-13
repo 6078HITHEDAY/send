@@ -1,4 +1,4 @@
-import { asset } from './assets';
+import { asset, assetManifest } from './assets';
 import { clientConstants } from './clientConstants';
 import config from './config';
 import type { FxaConfig } from './fxa';
@@ -136,6 +136,7 @@ function initScript(options: ShellOptions, auth: unknown): string {
     `window.downloadMetadata = ${jsonForScript(
       options.downloadMetadata ?? {}
     )};`,
+    `window.ASSET_MANIFEST = ${jsonForScript(assetManifest())};`,
     `window.BASE_URL = ${jsonForScript(options.baseUrl)};`,
     `window.LOCALE = ${jsonForScript(options.locale)};`,
     auth ? `window.AUTH_CONFIG = ${jsonForScript(auth)};` : '',
@@ -185,8 +186,8 @@ export async function renderShell(options: ShellOptions): Promise<string> {
     <link rel="stylesheet" href="/inter.css" />
     <style nonce="${options.cspNonce}">
       :root {
-        --color-primary: ${config.ui_color_primary};
-        --color-primary-accent: ${config.ui_color_accent};
+        --send-color-primary: ${config.ui_color_primary};
+        --send-color-accent: ${config.ui_color_accent};
       }
     </style>
     <link rel="stylesheet" href="${escapeHtml(asset('app.css'))}" />
@@ -218,7 +219,9 @@ ${initScript(options, auth)}
     </script>
     <script defer src="${escapeHtml(asset('app.js'))}"></script>
   </head>
-  <body>
+  <body
+    class="flex flex-col items-center font-sans md:h-screen md:bg-grey-10 dark:bg-black"
+  >
     <noscript>
       <div class="noscript">
         <h2>${escapeHtml(translate('javascriptRequired'))}</h2>
@@ -232,7 +235,8 @@ ${initScript(options, auth)}
         <p>${escapeHtml(translate('enableJavascript'))}</p>
       </div>
     </noscript>
-    <div id="app"></div>
+    <!-- display:contents keeps the React subtree in the body's flex layout. -->
+    <div id="app" class="contents"></div>
   </body>
 </html>
 `;

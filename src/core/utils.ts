@@ -7,7 +7,7 @@ export type TranslateFn = (
   data?: Record<string, unknown>
 ) => string;
 
-let translate: TranslateFn = () => {
+let translator: TranslateFn = () => {
   throw new Error('uninitialized translate function. call setTranslate first');
 };
 
@@ -16,8 +16,10 @@ let translate: TranslateFn = () => {
  * progress reporting) needs the Fluent translator without a hook.
  */
 export function setTranslate(t: TranslateFn) {
-  translate = t;
+  translator = t;
 }
+
+export const translate: TranslateFn = (id, data) => translator(id, data);
 
 let currentLocale = 'en-US';
 
