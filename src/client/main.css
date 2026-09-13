@@ -1,0 +1,371 @@
+@import 'tailwindcss';
+
+@source '../';
+
+/*
+ * Tailwind 4 is configured here rather than in tailwind.config.js. The old
+ * config replaced the default theme wholesale, so each namespace it owned is
+ * reset with `initial` before the project's own values are declared.
+ */
+@theme {
+  --color-*: initial;
+
+  --color-transparent: transparent;
+  /* Set at runtime by the server from ui_color_primary / ui_color_accent. */
+  --color-primary: var(--send-color-primary, #0a84ff);
+  --color-primary_accent: var(--send-color-accent, #003eaa);
+
+  --color-black: #000000;
+  --color-grey-90: #0c0c0d;
+  --color-grey-80: #2a2a2e;
+  --color-grey-70: #38383d;
+  --color-grey-60: #4a4a4f;
+  --color-grey-50: #737373;
+  --color-grey: #b1b1b3;
+  --color-grey-40: #b1b1b3;
+  --color-grey-30: #d7d7db;
+  --color-grey-banner: #f0f0f4;
+  --color-grey-transparent: hsl(250 13% 9% / 20%);
+  --color-grey-20: #ededf0;
+  --color-grey-10: #f9f9fa;
+  --color-white: #ffffff;
+  --color-cloud: rgb(255 255 255 / 80%);
+
+  /*
+   * The Photon warning and error colours. The old config never declared them,
+   * so `text-red`, `bg-yellow-40` and friends silently produced nothing and the
+   * notices and the rejected-password state rendered unstyled.
+   */
+  --color-red: #d70022;
+  --color-red-40: #ff9aa2;
+  --color-yellow-40: #ffe900;
+  --color-yellow-50: #ffbd4f;
+  --color-orange-60: #d76e00;
+
+  --breakpoint-*: initial;
+  --breakpoint-sm: 576px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 992px;
+  --breakpoint-xl: 1200px;
+
+  --font-sans:
+    'Inter', system-ui, BlinkMacSystemFont, -apple-system, 'Segoe UI', Roboto,
+    Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+
+  /* Reset clears the paired default line heights, matching v3's plain sizes. */
+  --text-*: initial;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 2rem;
+  --text-4xl: 2.25rem;
+  --text-5xl: 3rem;
+
+  --leading-loose: 1.75;
+  --tracking-wide: 0.05em;
+
+  --radius-*: initial;
+  --radius-sm: 0.125rem;
+  --radius-default: 0.25rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 1rem;
+
+  --container-*: initial;
+  --container-xs: 20rem;
+  --container-sm: 30rem;
+  --container-md: 40rem;
+  --container-lg: 50rem;
+  --container-xl: 60rem;
+
+  --shadow-*: initial;
+  --shadow-default: 0 2px 4px 0 rgb(0 0 0 / 10%);
+  --shadow-md:
+    0 4px 8px 0 rgb(0 0 0 / 12%), 0 2px 4px 0 rgb(0 0 0 / 8%);
+  --shadow-lg:
+    0 15px 30px 0 rgb(0 0 0 / 11%), 0 5px 15px 0 rgb(0 0 0 / 8%);
+  --shadow-light: 0 0 8px 0 rgb(12 12 13 / 10%);
+  --shadow-big:
+    0 12px 18px 2px rgb(34 0 51 / 4%), 0 6px 22px 4px rgb(7 48 114 / 12%),
+    0 6px 10px -4px rgb(14 13 26 / 12%);
+}
+
+@layer base {
+  html {
+    line-height: 1.15;
+  }
+
+  /* v4 defaults borders to currentColor; v3's config defaulted to grey-30. */
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-grey-30);
+  }
+
+  :not(input) {
+    user-select: none;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  a:focus {
+    outline: 1px dotted grey;
+  }
+
+  body {
+    background-image: url('../../assets/bg.svg');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    overflow-x: hidden;
+  }
+
+  details {
+    overflow: hidden;
+  }
+
+  details > summary::marker {
+    display: none;
+  }
+
+  details > summary > svg {
+    transition: all 0.25s cubic-bezier(0.07, 0.95, 0, 1);
+  }
+
+  details[open] {
+    overflow-y: auto;
+  }
+
+  details[open] > summary > svg {
+    transform: rotate(90deg);
+  }
+
+  select {
+    background-image: url('../../assets/select-arrow.svg');
+    background-position: calc(100% - 0.75rem);
+    background-repeat: no-repeat;
+  }
+
+  progress {
+    @apply bg-grey-30 rounded-sm w-full h-1;
+  }
+
+  progress::-webkit-progress-bar {
+    @apply bg-grey-30 rounded-sm w-full h-1;
+  }
+
+  progress::-webkit-progress-value {
+    background-image: linear-gradient(
+        135deg,
+        transparent 20%,
+        rgb(255 255 255 / 40%) 20%,
+        rgb(255 255 255 / 40%) 40%,
+        transparent 40%,
+        transparent 60%,
+        rgb(255 255 255 / 40%) 60%,
+        rgb(255 255 255 / 40%) 80%,
+        transparent 80%
+      ),
+      linear-gradient(
+        to right,
+        var(--color-primary),
+        var(--color-primary)
+      );
+    border-radius: 2px;
+    background-size: 21px 20px, 100% 100%, 100% 100%;
+  }
+
+  progress::-moz-progress-bar {
+    background-image: linear-gradient(
+        135deg,
+        transparent 20%,
+        rgb(255 255 255 / 40%) 20%,
+        rgb(255 255 255 / 40%) 40%,
+        transparent 40%,
+        transparent 60%,
+        rgb(255 255 255 / 40%) 60%,
+        rgb(255 255 255 / 40%) 80%,
+        transparent 80%
+      ),
+      linear-gradient(
+        to right,
+        var(--color-primary),
+        var(--color-primary)
+      );
+    border-radius: 2px;
+    background-size: 21px 20px, 100% 100%, 100% 100%;
+    animation: animate-stripes 1s linear infinite;
+  }
+
+  @keyframes animate-stripes {
+    100% {
+      background-position: -21px 0;
+    }
+  }
+}
+
+@layer components {
+  .btn {
+    @apply bg-primary text-white cursor-pointer py-4 px-6 font-semibold;
+  }
+
+  .btn:hover,
+  .btn:focus {
+    @apply bg-primary_accent;
+  }
+
+  .link-primary {
+    @apply text-primary;
+  }
+
+  .link-primary:hover,
+  .link-primary:focus {
+    @apply text-primary_accent;
+  }
+
+  .checkbox {
+    @apply leading-normal select-none;
+  }
+
+  .checkbox > input[type='checkbox'] {
+    @apply absolute opacity-0;
+  }
+
+  .checkbox > label {
+    @apply cursor-pointer;
+  }
+
+  .checkbox > label::before {
+    @apply border-default rounded-sm;
+
+    content: '';
+    height: 1.5rem;
+    width: 1.5rem;
+    margin-right: 0.5rem;
+    float: left;
+  }
+
+  .checkbox > label:hover::before,
+  .checkbox > input:focus + label::before {
+    @apply border-primary;
+  }
+
+  .checkbox > input:checked + label::before,
+  .checkbox > input:disabled + label::before {
+    @apply bg-primary border-primary;
+
+    background-image: url('../../assets/lock.svg');
+    background-position: center;
+    background-size: 1.25rem;
+    background-repeat: no-repeat;
+  }
+
+  .checkbox > input:disabled + label,
+  .checkbox > input:disabled + label::before {
+    cursor: auto;
+  }
+
+  footer li a:hover {
+    text-decoration: underline;
+  }
+
+  .main-header img {
+    height: 32px;
+    width: auto;
+  }
+
+  .main {
+    display: flex;
+    position: relative;
+    max-width: 64rem;
+    width: 100%;
+  }
+
+  .main > section {
+    @apply bg-white;
+  }
+
+  #password-msg::after {
+    content: '\200b';
+  }
+
+  .noscript {
+    @apply m-auto p-8 text-center leading-normal;
+  }
+
+  .signin {
+    backface-visibility: hidden;
+    border-radius: 6px;
+    transition-property: transform, background-color;
+    transition-duration: 250ms;
+    transition-timing-function: cubic-bezier(0.07, 0.95, 0, 1);
+  }
+
+  .signin:hover,
+  .signin:focus {
+    transform: scale(1.0625);
+  }
+
+  .signin:hover:active {
+    transform: scale(0.9375);
+  }
+
+  @media (min-width: 768px) {
+    .main-header img {
+      height: 48px;
+      width: auto;
+    }
+
+    .main {
+      @apply flex-1 self-center items-center m-auto py-8;
+
+      max-height: 42rem;
+      width: calc(100% - 3rem);
+    }
+  }
+
+  @media (prefers-color-scheme: dark) {
+    body {
+      @apply text-grey-10;
+
+      background-image: unset;
+    }
+
+    .main > section {
+      @apply bg-grey-90;
+    }
+
+    @media (min-width: 768px) {
+      .main > section {
+        @apply border-default border-grey-80;
+      }
+    }
+  }
+}
+
+/* v4 dropped the borderWidth theme scale, so the 1px default is a utility. */
+@utility border-default {
+  border-width: 1px;
+}
+
+/* Replaces the v3 `@variants focus { .outline }` block. */
+@utility outline {
+  outline: 1px dotted grey;
+}
+
+@utility word-break-all {
+  word-break: break-all;
+  line-break: anywhere;
+}
+
+@utility text-underline {
+  text-decoration: underline;
+}
